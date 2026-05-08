@@ -238,7 +238,7 @@
       gap: .5rem;
     }
     .tipo-pill {
-      display: inline-block;
+      display: inline-flex;
     }
     .tipo-pill input[type="radio"] { display: none; }
     .tipo-pill label {
@@ -254,13 +254,14 @@
       color: var(--silver);
       text-transform: none;
       margin: 0;
+      user-select: none;
     }
     .tipo-pill input[type="radio"]:checked + label {
       background: var(--gold-dim);
       border-color: var(--gold);
       color: var(--gold);
     }
-    .tipo-pill label:hover { border-color: var(--gold-dim); }
+    .tipo-pill label:hover { border-color: var(--gold-dim); color: var(--light); }
 
     .btn-publish {
       width: 100%;
