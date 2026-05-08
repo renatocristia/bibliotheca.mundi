@@ -486,6 +486,7 @@
       font-style: italic;
       display: -webkit-box;
       -webkit-line-clamp: 3;
+      line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -984,34 +985,40 @@ let portadaData = null;   // { base64, type, name }
 let archivoData = null;   // { base64, name, size, ext }
 
 /* ═══════════════════════════════════════════════════
-   PERSISTENCIA — Storage compartido (simulado local)
+   FIREBASE — Base de datos mundial en tiempo real
 ═══════════════════════════════════════════════════ */
 
-const STORAGE_KEY = 'bibliotheca-mundi-obras';
+const DB_URL = 'https://bibliotheca-mundi-default-rtdb.firebaseio.com';
 
-function guardarStorage() {
+async function guardarStorage() {
   try {
-    // Intentar usar el storage compartido de Artifact si está disponible
-    if (window.storage) {
-      window.storage.set(STORAGE_KEY, JSON.stringify(obras), true)
-        .catch(() => localStorage.setItem(STORAGE_KEY, JSON.stringify(obras)));
-    } else {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(obras));
-    }
+    // Guarda obra por obra en Firebase
+    const promises = obras.map(o =>
+      fetch(`${DB_URL}/obras/${o.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(o)
+      })
+    );
+    await Promise.all(promises);
   } catch(e) {
-    console.warn('Storage error:', e);
+    console.warn('Firebase error:', e);
+    localStorage.setItem('bibliotheca-backup', JSON.stringify(obras));
   }
 }
 
 async function cargarStorage() {
   try {
-    if (window.storage) {
-      const result = await window.storage.get(STORAGE_KEY, true);
-      if (result && result.value) return JSON.parse(result.value);
+    const res = await fetch(`${DB_URL}/obras.json`);
+    const data = await res.json();
+    if (data) {
+      return Object.values(data);
     }
-    const local = localStorage.getItem(STORAGE_KEY);
+  } catch(e) {
+    console.warn('Firebase carga error:', e);
+    const local = localStorage.getItem('bibliotheca-backup');
     if (local) return JSON.parse(local);
-  } catch(e) { /* */ }
+  }
   return datosSemilla();
 }
 
@@ -1252,41 +1259,46 @@ function obtenerTipo() {
  * Agrega una obra al arreglo de obras.
  * @param {Object} datos
  */
-function agregarObra(datos) {
+async function agregarObra(datos) {
   obras.unshift(datos);
-  guardarStorage();
   aplicarFiltros();
   actualizarStats();
   mostrarToast('🌍 Tu obra fue publicada en la Biblioteca Mundial.', 'success');
+  try {
+    await fetch(`${DB_URL}/obras/${datos.id}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+  } catch(e) { console.warn('Firebase write error:', e); }
 }
 
-/**
- * Actualiza una obra existente por ID.
- * @param {string} id
- * @param {Object} datos
- */
-function actualizarObra(id, datos) {
+async function actualizarObra(id, datos) {
   const i = obras.findIndex(o => o.id === id);
   if (i < 0) return;
   obras[i] = { ...obras[i], ...datos };
-  guardarStorage();
   aplicarFiltros();
   actualizarStats();
   mostrarToast('✅ Obra actualizada.', 'success');
+  try {
+    await fetch(`${DB_URL}/obras/${id}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(obras[i])
+    });
+  } catch(e) { console.warn('Firebase update error:', e); }
 }
 
-/**
- * Elimina una obra del arreglo por ID.
- * @param {string} id
- */
-function eliminarObra(id) {
+async function eliminarObra(id) {
   const i = obras.findIndex(o => o.id === id);
   if (i < 0) return;
   obras.splice(i, 1);
-  guardarStorage();
   aplicarFiltros();
   actualizarStats();
   mostrarToast('🗑 Obra eliminada de la Biblioteca.', 'info');
+  try {
+    await fetch(`${DB_URL}/obras/${id}.json`, { method: 'DELETE' });
+  } catch(e) { console.warn('Firebase delete error:', e); }
 }
 
 /* ═══════════════════════════════════════════════════
