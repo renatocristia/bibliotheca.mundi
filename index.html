@@ -237,6 +237,9 @@
       flex-wrap: wrap;
       gap: .5rem;
     }
+    .tipo-pill {
+      display: inline-block;
+    }
     .tipo-pill input[type="radio"] { display: none; }
     .tipo-pill label {
       display: inline-block;
@@ -250,8 +253,9 @@
       transition: all .2s;
       color: var(--silver);
       text-transform: none;
+      margin: 0;
     }
-    .tipo-pill input:checked + label {
+    .tipo-pill input[type="radio"]:checked + label {
       background: var(--gold-dim);
       border-color: var(--gold);
       color: var(--gold);
@@ -481,7 +485,6 @@
       font-style: italic;
       display: -webkit-box;
       -webkit-line-clamp: 3;
-      line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -786,13 +789,13 @@
       <div class="field">
         <label>Tipo de obra <span class="req">*</span></label>
         <div class="tipo-pills" id="tipo-pills">
-          <label class="tipo-pill"><input type="radio" name="tipo" value="Novela">📖 Novela</label>
-          <label class="tipo-pill"><input type="radio" name="tipo" value="Cuento">✍️ Cuento</label>
-          <label class="tipo-pill"><input type="radio" name="tipo" value="Poesía">🌹 Poesía</label>
-          <label class="tipo-pill"><input type="radio" name="tipo" value="Ensayo">📝 Ensayo</label>
-          <label class="tipo-pill"><input type="radio" name="tipo" value="Manga/Comic">🎨 Manga/Cómic</label>
-          <label class="tipo-pill"><input type="radio" name="tipo" value="Investigación">🔬 Investigación</label>
-          <label class="tipo-pill"><input type="radio" name="tipo" value="Otro">✨ Otro</label>
+          <div class="tipo-pill"><input type="radio" name="tipo" value="Novela" id="tipo-novela"><label for="tipo-novela">📖 Novela</label></div>
+          <div class="tipo-pill"><input type="radio" name="tipo" value="Cuento" id="tipo-cuento"><label for="tipo-cuento">✍️ Cuento</label></div>
+          <div class="tipo-pill"><input type="radio" name="tipo" value="Poesía" id="tipo-poesia"><label for="tipo-poesia">🌹 Poesía</label></div>
+          <div class="tipo-pill"><input type="radio" name="tipo" value="Ensayo" id="tipo-ensayo"><label for="tipo-ensayo">📝 Ensayo</label></div>
+          <div class="tipo-pill"><input type="radio" name="tipo" value="Manga/Comic" id="tipo-manga"><label for="tipo-manga">🎨 Manga/Cómic</label></div>
+          <div class="tipo-pill"><input type="radio" name="tipo" value="Investigación" id="tipo-investigacion"><label for="tipo-investigacion">🔬 Investigación</label></div>
+          <div class="tipo-pill"><input type="radio" name="tipo" value="Otro" id="tipo-otro"><label for="tipo-otro">✨ Otro</label></div>
         </div>
         <p class="field-err" id="err-tipo">Selecciona el tipo de obra.</p>
       </div>
